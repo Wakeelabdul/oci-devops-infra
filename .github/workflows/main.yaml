@@ -24,13 +24,13 @@ jobs:
 
       - name: Build and Push
         run: |
-          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/oci-web-app:${{ github.sha }} .
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/oci-web-app:${{ github.sha }}
+          docker build -t docker.io/${{ secrets.DOCKERHUB_USERNAME }}/oci-web-app:${{ github.sha }} .
+          docker push docker.io/${{ secrets.DOCKERHUB_USERNAME }}/oci-web-app:${{ github.sha }}
 
       - name: Update K8s Manifest
         run: |
           # Matches the image line in your k8s/deployment.yaml and replaces it
-          sed -i "s|image:.*|image: ${{ secrets.DOCKERHUB_USERNAME }}/oci-web-app:${{ github.sha }}|g" k8s/deployment.yaml
+          sed -i "s|image:.*|image: docker.io/${{ secrets.DOCKERHUB_USERNAME }}/oci-web-app:${{ github.sha }}|g" k8s/deployment.yaml
           
           git config --global user.name "github-actions"
           git config --global user.email "actions@github.com"
