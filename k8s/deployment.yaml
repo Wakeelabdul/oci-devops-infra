@@ -15,7 +15,7 @@ spec:
       containers:
       - name: web-app
         # Replace with your actual OCIR path
-        image: docker.io/wakeel532687/oci-web-app:30d6c8876fc7b3af2dc9bd2d4a7444f86aa45d6a
+        image: docker.io/wakeel532687/oci-web-app:997166fcd6d01747ebd5dbfb9b3c3dd88e3daf5a
         ports:
         - containerPort: 5000
 ---
