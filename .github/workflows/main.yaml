@@ -14,8 +14,8 @@ jobs:
         uses: docker/login-action@v2
         with:
           registry: ${{ secrets.OCIR_REGISTRY }}
-          username: ${{ secrets.OCI_USERNAME }}
-          password: ${{ secrets.OCI_AUTH_TOKEN }}
+          username: '${{ secrets.OCI_USERNAME }}'
+          password: '${{ secrets.OCI_AUTH_TOKEN }}'
 
       - name: Build and Push Docker Image
         run: |
