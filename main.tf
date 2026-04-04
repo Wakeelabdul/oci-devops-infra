@@ -13,6 +13,26 @@ resource "oci_core_internet_gateway" "ig" {
   vcn_id         = oci_core_vcn.oke_vcn.id
 }
 
+# The Endpoint Subnet (Where the K8s API lives)
+resource "oci_core_subnet" "endpoint_subnet" {
+  cidr_block          = "10.105.0.0/28"
+  compartment_id      = var.compartment_id
+  vcn_id              = oci_core_vcn.oke_vcn.id
+  display_name        = "oke-endpoint-subnet"
+  security_list_ids   = [oci_core_security_list.endpoint_sec_list.id]
+  prohibit_public_ip_on_vnic = false
+}
+
+# The Worker Node Subnet (Where your actual servers live)
+resource "oci_core_subnet" "node_subnet" {
+  cidr_block          = "10.105.1.0/24"
+  compartment_id      = var.compartment_id
+  vcn_id              = oci_core_vcn.oke_vcn.id
+  display_name        = "oke-node-subnet"
+  security_list_ids   = [oci_core_security_list.node_sec_list.id]
+  prohibit_public_ip_on_vnic = true # Keep workers private for security
+}
+
 # 3. Create the OKE Cluster
 resource "oci_containerengine_cluster" "oke_cluster" {
   compartment_id     = var.compartment_id
