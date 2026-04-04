@@ -30,3 +30,10 @@ jobs:
           git commit -m "Deploy image ${{ github.sha }} from Docker Hub"
           git push
 
+      steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+        with:
+          # This ensures the bot uses the correct token to push back
+          token: ${{ secrets.GITHUB_TOKEN }}
+
