@@ -51,6 +51,13 @@ resource "oci_containerengine_node_pool" "oke_node_pool" {
   name               = "primary-node-pool"
   node_shape         = var.node_shape
 
+  # ADD THIS BLOCK START
+  node_shape_config {
+    ocpus         = 1
+    memory_in_gbs = 16
+  }
+  # ADD THIS BLOCK END
+
   node_source_details {
     image_id    = data.oci_core_images.latest_node_image.images[0].id
     source_type = "IMAGE"
@@ -61,7 +68,7 @@ resource "oci_containerengine_node_pool" "oke_node_pool" {
       availability_domain = data.oci_identity_availability_domains.ads.availability_domains[0].name
       subnet_id          = oci_core_subnet.node_subnet.id
     }
-    size = 2 # Starts with 2 worker nodes
+    size = 2
   }
 }
 
