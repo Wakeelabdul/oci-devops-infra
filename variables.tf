@@ -16,5 +16,5 @@ variable "kubernetes_version" {
 
 variable "node_shape" {
   type    = string
-  default = "VM.Standard.E4.Flex"
+  default = "VM.Standard.A1.Flex"
 }
