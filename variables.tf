@@ -11,7 +11,7 @@ variable "region" {
 
 variable "kubernetes_version" {
   type    = string
-  default = "v1.30.1" # Check OCI Console for the latest supported version
+  default = "v1.35.0" # Check OCI Console for the latest supported version
 }
 
 variable "node_shape" {
