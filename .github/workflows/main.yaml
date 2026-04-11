@@ -4,22 +4,29 @@ on:
     branches: [ main ]
 
 jobs:
-  build-and-push:
+  build:
+    strategy:
+      matrix:
+        include:
+          - app_name: app1
+            context: ./app1
+            deployment_file: k8s/deployment.yaml
+          - app_name: app2
+            context: ./app2
+            deployment_file: k8s/deployment2.yaml
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      # Required for building ARM images on an x86 runner
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
 
-      # Required for multi-platform builds
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
@@ -29,24 +36,26 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and Push Multi-Platform
+      - name: Build and Push
         uses: docker/build-push-action@v4
         with:
-          context: .
+          context: ${{ matrix.context }}
+          platforms: linux/amd64,linux/arm64
           push: true
-          # Builds for both standard Intel/AMD and Oracle Ampere (ARM)
-          platforms: linux/amd64,linux/arm64 
+          # Note how we use matrix.app_name to tag the correct image
           tags: |
-            docker.io/${{ secrets.DOCKERHUB_USERNAME }}/oci-web-app:latest
-            docker.io/${{ secrets.DOCKERHUB_USERNAME }}/oci-web-app:${{ github.sha }}
+            docker.io/${{ secrets.DOCKERHUB_USERNAME }}/oci-web-${{ matrix.app_name }}:${{ github.sha }}
 
-      - name: Update K8s Manifest
+      - name: Update Manifest
         run: |
-          # Use the SHA-tagged image for precise deployments
-          sed -i "s|image:.*|image: docker.io/${{ secrets.DOCKERHUB_USERNAME }}/oci-web-app:${{ github.sha }}|g" k8s/deployment.yaml
+          # Only updates the deployment file specific to THIS matrix run
+          sed -i "s|image:.*|image: docker.io/${{ secrets.DOCKERHUB_USERNAME }}/oci-web-${{ matrix.app_name }}:${{ github.sha }}|g" ${{ matrix.deployment_file }}
           
           git config --global user.name "github-actions"
           git config --global user.email "actions@github.com"
-          git add k8s/deployment.yaml
-          git commit -m "Deploy multi-arch image ${{ github.sha }}"
+          git add ${{ matrix.deployment_file }}
+          # We use '|| true' so the job doesn't fail if there are no changes
+          git commit -m "Deploy ${{ matrix.app_name }} image ${{ github.sha }}" || true
+          # Rebase to handle simultaneous matrix pushes
+          git pull --rebase origin main
           git push

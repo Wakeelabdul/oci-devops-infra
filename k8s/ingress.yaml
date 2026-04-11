@@ -4,6 +4,8 @@ metadata:
   name: oci-web-ingress
   annotations:
     kubernetes.io/ingress.class: nginx
+    # CRITICAL: This allows /app2 to map to the root of your app
+    nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
   rules:
   - host: "oci-app.local"
@@ -13,6 +15,13 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: oci-web-service # Must match your Service name
+            name: oci-web-service 
             port:
-              number: 5000       # Must match your Service port
+              number: 80 # Use the Service port, not the ContainerPort
+      - path: /app2
+        pathType: Prefix
+        backend:
+          service:
+            name: oci-web-service2
+            port:
+              number: 80 # Use the Service port (80) defined in deployment2.yaml

@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: oci-web-app2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: oci-web-app2
+  template:
+    metadata:
+      labels:
+        app: oci-web-app2
+    spec:
+      containers:
+      - name: web-app2
+        # Replace with your actual OCIR path
+        image: docker.io/wakeel532687/oci-web-app2:latest
+        ports:
+        - containerPort: 5001
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: oci-web-service2
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: 5001
+  selector:
+    app: oci-web-app2
