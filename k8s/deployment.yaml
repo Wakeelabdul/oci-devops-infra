@@ -27,7 +27,7 @@ metadata:
     # Use your Public Subnet OCID from earlier
     service.beta.kubernetes.io/oci-load-balancer-subnet1: "ocid1.subnet.oc1.me-riyadh-1.aaaaaaaaypjbhxx5cqmajclwiw542iswkhmhnq4krzylvcv2uk4t5r3parda"
 spec:
-  type: LoadBalancer
+  type: ClusterIP
   ports:
   - port: 80
     targetPort: 5000
