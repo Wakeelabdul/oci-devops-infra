@@ -4,6 +4,8 @@ metadata:
   name: oci-web-app2
 spec:
   replicas: 1
+  strategy:
+    type: Recreate # Best practice for RWO volumes
   selector:
     matchLabels:
       app: oci-web-app2
@@ -11,13 +13,21 @@ spec:
     metadata:
       labels:
         app: oci-web-app2
+      annotations:
+        backup.velero.io/backup-volumes: persistent-storage-volume
     spec:
       containers:
       - name: web-app2
-        # Replace with your actual OCIR path
         image: docker.io/wakeel532687/oci-web-app2:95803e7e33ca2bb3bf0e4688a587b9ee63740d8a
         ports:
         - containerPort: 5001
+        volumeMounts:
+        - name: persistent-storage-volume
+          mountPath: /app2/data 
+      volumes:
+      - name: persistent-storage-volume
+        persistentVolumeClaim:
+          claimName: app2-storage-pvc
 ---
 apiVersion: v1
 kind: Service
