@@ -16,6 +16,21 @@ spec:
       annotations:
         backup.velero.io/backup-volumes: persistent-storage-volume
     spec:
+      # --- START OF SOFT ANTI-AFFINITY ---
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - oci-web-app2
+              topologyKey: "kubernetes.io/hostname"
+      # --- END OF SOFT ANTI-AFFINITY ---
+    spec:
       containers:
       - name: web-app2
         # I kept the newer tag (18acda...) - delete the markers!

@@ -3,7 +3,9 @@ kind: Deployment
 metadata:
   name: oci-web-app
 spec:
-  replicas: 1
+  replicas: 1 # You can increase this to 2 now that we have Anti-Affinity
+  strategy:
+    type: Recreate # Ensures volume is released before the new pod starts
   selector:
     matchLabels:
       app: oci-web-app
@@ -12,14 +14,27 @@ spec:
       labels:
         app: oci-web-app
       annotations:
-        # Crucial for the Velero Node-Agent (Restic) to find your data
         backup.velero.io/backup-volumes: persistent-storage-volume
     spec:
+      # --- START OF SOFT ANTI-AFFINITY ---
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - oci-web-app
+              topologyKey: "kubernetes.io/hostname"
+      # --- END OF SOFT ANTI-AFFINITY ---
       containers:
       - name: web-app
         image: docker.io/wakeel532687/oci-web-app:c6f9bfb3fc36f7d5bf1f675860231aea03cc39ba
         ports:
-        - containerPort: 5000 # Moved under container
+        - containerPort: 5000
         volumeMounts:
         - name: persistent-storage-volume
           mountPath: /app/data 
@@ -33,10 +48,10 @@ kind: Service
 metadata:
   name: oci-web-service
   annotations:
-    # This correctly points to your Riyadh public subnet for the LB
+    # Subnet for the OCI Load Balancer in Riyadh
     service.beta.kubernetes.io/oci-load-balancer-subnet1: "ocid1.subnet.oc1.me-riyadh-1.aaaaaaaaypjbhxx5cqmajclwiw542iswkhmhnq4krzylvcv2uk4t5r3parda"
 spec:
-  type: ClusterIP # Change to LoadBalancer if you want an external IP
+  type: ClusterIP # Change to LoadBalancer when you're ready for public access
   ports:
   - port: 80
     targetPort: 5000
