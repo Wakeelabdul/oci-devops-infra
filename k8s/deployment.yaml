@@ -27,7 +27,7 @@ spec:
                 - key: app
                   operator: In
                   values:
-                  - oci-web-app
+                  - oci-web-app2
               topologyKey: "kubernetes.io/hostname"
       # --- END OF SOFT ANTI-AFFINITY ---
       containers:
