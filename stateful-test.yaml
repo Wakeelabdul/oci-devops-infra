@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: velero-stateful-demo
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: oci-block-pvc
+  namespace: velero-stateful-demo
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 50Gi # OCI Block Volume minimum
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: data-writer
+  namespace: velero-stateful-demo
+  annotations:
+    backup.velero.io/backup-volumes: data-storage # This tells the Node-Agent to back up this volume
+spec:
+  containers:
+  - name: writer
+    image: busybox
+    command: ["/bin/sh", "-c", "while true; do date >> /mnt/data/history.txt; sleep 10; done"]
+    volumeMounts:
+    - name: data-storage
+      mountPath: /mnt/data
+  volumes:
+  - name: data-storage
+    persistentVolumeClaim:
+      claimName: oci-block-pvc

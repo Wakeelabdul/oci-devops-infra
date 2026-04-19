@@ -1,0 +1,12 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-internal-communication
+  namespace: default
+spec:
+  podSelector: {} # Targets all pods in the namespace
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - podSelector: {} # Allows traffic from ANY pod in this same namespace
