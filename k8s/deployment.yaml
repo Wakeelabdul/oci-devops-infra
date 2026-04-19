@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: web-app
-        image: docker.io/wakeel532687/oci-web-app:e57cb57f5863f008aa338accee8f68e6378a06a0
+        image: docker.io/wakeel532687/oci-web-app:c6f9bfb3fc36f7d5bf1f675860231aea03cc39ba
         ports:
         - containerPort: 5000 # Moved under container
         volumeMounts:
